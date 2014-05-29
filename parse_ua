@@ -1,0 +1,2 @@
+#!/bin/sh
+python -tt -c "from anon import parse_ua; parse_ua.main();" "$@"
