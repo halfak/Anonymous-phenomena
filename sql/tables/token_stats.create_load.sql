@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS staging.token_stats;
+CREATE TABLE staging.token_stats
+ENGINE = InnoDB
 SELECT
     wiki,
     token,
@@ -31,8 +34,7 @@ FROM (
       event_token AS token,
       timestamp,
       "revision" AS event
-    FROM
-    log.TrackedPageContentSaveComplete_7872558
+    FROM log.TrackedPageContentSaveComplete_7872558
     WHERE wiki IN  ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
   UNION ALL
@@ -41,8 +43,7 @@ FROM (
       event_token AS token,
       timestamp,
       "creation complete" AS event
-    FROM
-      log.SignupExpAccountCreationComplete_8539421
+    FROM log.SignupExpAccountCreationComplete_8539421
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
   UNION ALL
@@ -51,8 +52,7 @@ FROM (
       event_token AS token,
       timestamp,
       "creation impression" AS event
-    FROM
-      SignupExpAccountCreationImpression_8539445
+    FROM log.SignupExpAccountCreationImpression_8539445
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
   UNION ALL
@@ -61,8 +61,7 @@ FROM (
       event_token AS token,
       timestamp,
       CONCAT("button click ", event_button) AS event
-    FROM
-      log.SignupExpCTAButtonClick_8102619
+    FROM log.SignupExpCTAButtonClick_8102619
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
   UNION ALL
@@ -71,8 +70,7 @@ FROM (
       event_token AS token,
       timestamp,
       CONCAT("CTA impression ", event_cta) AS event
-    FROM
-      log.SignupExpCTAImpression_8101716
+    FROM log.SignupExpCTAImpression_8101716
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
   UNION ALL
@@ -81,9 +79,12 @@ FROM (
       event_token AS token,
       timestamp,
       CONCAT("link click ", event_link) AS event
-    FROM
-      log.SignupExpPageLinkClick_8101692
+    FROM log.SignupExpPageLinkClick_8101692
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
 ) AS token_events
-GROUP BY 1,2
+GROUP BY 1,2;
+ALTER TABLE staging.token_stats MODIFY wiki VARCHAR(32);
+ALTER TABLE staging.token_stats MODIFY token VARCHAR(32);
+CREATE UNIQUE INDEX wiki_token ON staging.token_stats (wiki, token);
+SELECT COUNT(*), NOW() FROM staging.token_stats;

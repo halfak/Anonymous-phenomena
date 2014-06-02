@@ -1,6 +1,10 @@
+# No last modified files
+*~
+\#*#
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod~]
+*.py[cod]
 
 # C extensions
 *.so
@@ -54,7 +58,7 @@ docs/_build/
 
 # History files
 .Rhistory
-.R~
+.R
 
 # Example code in package build process
 *-Ex.R

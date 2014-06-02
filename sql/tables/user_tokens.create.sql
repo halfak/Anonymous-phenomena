@@ -1,8 +1,8 @@
 CREATE TABLE staging.user_token (
-    wiki              VARCHAR(191),
+    wiki              VARCHAR(32),
     user_id           INT,
     registration      VARBINARY(14),
-    token             VARCHAR(255),
+    token             VARCHAR(32),
     account_creations INT,
     revisions         INT,
     total_events      INT,

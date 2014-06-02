@@ -1,13 +1,15 @@
 
-s1 = --defaults-file=~/.my.research.cnf -h s1-analytics-slave.eqiad.wmnet -u research
-s2 = --defaults-file=~/.my.research.cnf -h s2-analytics-slave.eqiad.wmnet -u research
-s3 = --defaults-file=~/.my.research.cnf -h s3-analytics-slave.eqiad.wmnet -u research
-s4 = --defaults-file=~/.my.research.cnf -h s4-analytics-slave.eqiad.wmnet -u research
-s5 = --defaults-file=~/.my.research.cnf -h s5-analytics-slave.eqiad.wmnet -u research
-s6 = --defaults-file=~/.my.research.cnf -h s6-analytics-slave.eqiad.wmnet -u research
-s7 = --defaults-file=~/.my.research.cnf -h s7-analytics-slave.eqiad.wmnet -u research
-dbstore = --defaults-file=~/.my.research.cnf -h dbstore1001.eqiad.wmnet -u research
-staging = --defaults-file=~/.my.research.cnf -h s1-analytics-slave.eqiad.wmnet -u research
+conn_user = --defaults-file=~/.my.research.cnf -u research
+
+s1 = $(conn_user) -h s1-analytics-slave.eqiad.wmnet
+s2 = $(conn_user) -h s2-analytics-slave.eqiad.wmnet
+s3 = $(conn_user) -h s3-analytics-slave.eqiad.wmnet
+s4 = $(conn_user) -h s4-analytics-slave.eqiad.wmnet
+s5 = $(conn_user) -h s5-analytics-slave.eqiad.wmnet
+s6 = $(conn_user) -h s6-analytics-slave.eqiad.wmnet
+s7 = $(conn_user) -h s7-analytics-slave.eqiad.wmnet
+dbstore = $(conn_user) -h analytics-store.eqiad.wmnet
+staging = $(conn_user) -h s1-analytics-slave.eqiad.wmnet
 
 start_date = 20140519180800
 end_date = 20140526180800
@@ -23,7 +25,7 @@ datasets/tables/user_tokens.created: sql/tables/user_tokens.create.sql
 	datasets/tables/user_tokens.created
 
 datasets/tables/user_tokens.loaded: datasets/tables/user_tokens.created \
-                                  datasets/user_tokens.tsv
+                                    datasets/user_tokens.tsv
 	mysql $(staging) -e "TRUNCATE TABLE staging.user_token;" | \
 	ln -sf user_tokens.tsv datasets/user_token && \
 	mysqlimport $(staging) --local --ignore-lines=1 staging datasets/user_token && \
@@ -31,23 +33,10 @@ datasets/tables/user_tokens.loaded: datasets/tables/user_tokens.created \
 	mysql $(staging) -e "SELECT COUNT(*), NOW() FROM staging.user_token;" > \
 	datasets/tables/user_tokens.loaded
 
-datasets/token_stats.tsv: sql/token_stats.sql
-	cat sql/token_stats.sql | \
-	mysql $(dbstore) log > \
-	datasets/token_stats.tsv
 
-datasets/tables/token_stats.created: sql/tables/token_stats.create.sql
-	cat sql/tables/token_stats.create.sql | \
+datasets/tables/token_stats.loaded: sql/tables/token_stats.create_load.sql
+	cat sql/tables/token_stats.create_load.sql | \
 	mysql $(staging) staging > \
-	datasets/tables/token_stats.created
-
-datasets/tables/token_stats.loaded: datasets/tables/token_stats.created \
-                                    datasets/token_stats.tsv
-	mysql $(staging) -e "TRUNCATE TABLE staging.token_stats;" && \
-	ln -sf token_stats.tsv datasets/token_stats && \
-	mysqlimport $(staging) --local --ignore-lines=1 staging datasets/token_stats && \
-	rm datasets/token_stats && \
-	mysql $(staging) -e "SELECT COUNT(*), NOW() FROM staging.token_stats;" > \
 	datasets/tables/token_stats.loaded
 
 
@@ -57,3 +46,21 @@ datasets/tables/token_info.loaded: sql/tables/token_info.create_load.sql \
 	cat sql/tables/token_info.create_load.sql | \
 	mysql $(staging) staging > \
 	datasets/tables/token_info.loaded
+
+datasets/token_class_events.tsv: sql/token_class_events.sql \
+                                 datasets/tables/token_info.loaded
+	cat sql/token_class_events.sql | \
+	mysql $(staging) staging > \
+	datasets/token_class_events.tsv
+
+datasets/experimental_users.tsv: sql/experimental_users.sql \
+                                 datasets/tables/token_info.loaded
+	cat sql/experimental_users.sql | \
+	mysql $(staging) staging > \
+	datasets/experimental_users.tsv
+
+datasets/experimental_user_stats.tsv: datasets/experimental_users.tsv \
+                                      anon/new_user_stats.py
+	cat datasets/experimental_users.tsv | \
+	./new_user_stats $(conn_user) > \
+	datasets/experimental_user_stats.tsv
