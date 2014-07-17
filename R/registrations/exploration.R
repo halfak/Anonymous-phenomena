@@ -59,7 +59,7 @@ edit_link.registration_rate$se = with(
 	sqrt(prop*(1-prop)/n)
 )
 
-svg("registrations/plots/registration_rate.edit_link.by_condition.svg", height=5, width=7)
+svg("registrations/plots/registration_rate.edit_link.by_condition.svg", height=4, width=7)
 ggplot(
 	edit_link.registration_rate,
 	aes(
@@ -68,13 +68,14 @@ ggplot(
 	)
 ) +
 geom_point() +
-geom_errorbar(aes(ymin=prop-se, ymax=prop+se), width=0.5) +
+geom_errorbar(aes(ymin=prop-se, ymax=prop+se), width=0.25) +
 facet_wrap(~ wiki, nrow=1) +
 theme_bw() +
 scale_y_continuous(
-	"Registration rate",
-	limit=c(0, max(class.registration_rate$prop + class.registration_rate$se))
+	"Registration rate\n",
+	limit=c(0, max(edit_link.registration_rate$prop + edit_link.registration_rate$se))
 ) +
+scale_x_discrete("\nExperimental buckets") +
 theme(
 	axis.text.x = element_text(angle = 45, hjust = 1)
 )

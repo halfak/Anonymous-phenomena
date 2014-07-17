@@ -1,0 +1,2 @@
+#!/bin/sh
+~/env/3/bin/python -tt -c "from anon import revision_status; revision_status.main();" "$@"

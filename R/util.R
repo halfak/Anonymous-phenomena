@@ -36,6 +36,88 @@ tsv_loader = function(filename, ident, cleanup=function(x){x}){
 	)
 }
 
+wikits.extend.timestamp = function(ts){
+	if(is.na(ts[1])){
+		NA
+	}else if(nchar(ts[1]) < 4){
+		warning("Not enough characters for wiki timestamp.")
+		NA
+	}else if(nchar(ts[1]) >= 14){
+		ts[1]
+	}else{
+		year = substr(ts, 1, 4)
+		
+		if(nchar(ts[1]) >= 6){
+			month = substr(ts, 5, 6)
+		}else{
+			month = "01"
+		}
+		
+		if(nchar(ts[1]) >= 8){
+			day = substr(ts, 7, 8)
+		}else{
+			day = "01"
+		}
+		
+		if(nchar(ts[1]) >= 10){
+			hour = substr(ts, 9, 10)
+		}else{
+			hour = "00"
+		}
+		
+		if(nchar(ts[1]) >= 12){
+			minute = substr(ts, 11, 12)
+		}else{
+			minute = "00"
+		}
+		
+		if(nchar(ts[1]) == 14){
+			second = substr(ts, 13, 14)
+		}else{
+			second = "00"
+		}
+	
+		paste(year, month, day, hour, minute, second, sep="")
+	}
+}
+
+wikits.extend = function(wikits){
+	unname(
+		sapply(
+			as.character(wikits),
+			wikits.extend.timestamp
+		)
+	)
+}
+
+wikits.as.Date = function(wikits){
+	if(!is.numeric(wikits) & !is.character(wikits)){
+		warning("Non wiki timestamp string provided.")
+		wikits
+	}else{
+		as.Date(
+			wikits.extend(wikits), 
+			format="%Y%m%d", 
+			origin="1970-01-01",
+			tz="UTC"
+		)
+	}
+}
+
+wikits.as.POSIXct = function(wikits){
+	if(!is.numeric(wikits) & !is.character(wikits)){
+		warning("Non wiki timestamp string provided.")
+		wikits
+	}else{
+		as.POSIXct(
+			wikits.extend(wikits), 
+			format="%Y%m%d%H%M%S", 
+			origin="1970-01-01",
+			tz="UTC"
+		)
+	}
+}
+
 convert.factor = function(f, map){
 	chars = as.character(f)
 	new_f = factor(
