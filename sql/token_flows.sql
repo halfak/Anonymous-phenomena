@@ -7,6 +7,7 @@ CREATE TEMPORARY TABLE staging.experimental_wiki_token_events
     FROM log.TrackedPageContentSaveComplete_8535426
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -16,6 +17,7 @@ CREATE TEMPORARY TABLE staging.experimental_wiki_token_events
     FROM log.TrackedPageContentSaveComplete_7872558
     WHERE wiki IN  ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -25,6 +27,7 @@ CREATE TEMPORARY TABLE staging.experimental_wiki_token_events
     FROM log.SignupExpAccountCreationComplete_8539421
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -34,6 +37,7 @@ CREATE TEMPORARY TABLE staging.experimental_wiki_token_events
     FROM log.SignupExpAccountCreationImpression_8539445
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -43,6 +47,7 @@ CREATE TEMPORARY TABLE staging.experimental_wiki_token_events
     FROM log.SignupExpCTAButtonClick_8102619
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -52,6 +57,7 @@ CREATE TEMPORARY TABLE staging.experimental_wiki_token_events
     FROM log.SignupExpCTAImpression_8101716
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -60,7 +66,8 @@ CREATE TEMPORARY TABLE staging.experimental_wiki_token_events
       CONCAT("link click ", event_link) AS event
     FROM log.SignupExpPageLinkClick_8101692
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
-    AND event_token IS NOT NULL;
+    AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date;
 ALTER TABLE staging.experimental_wiki_token_events MODIFY wiki VARCHAR(50);
 CREATE INDEX wiki_token_time ON staging.experimental_wiki_token_events (wiki, token, timestamp);
 
@@ -94,10 +101,10 @@ SELECT
     SUM(ewte.event = "revision") AS revisions_saved
 FROM staging.token_flow_start tfs
 INNER JOIN staging.token_info USING (wiki, token)
-LEFT JOIN staging.experimental_wiki_token_events ewte ON 
+LEFT JOIN staging.experimental_wiki_token_events ewte ON
     tfs.wiki = ewte.wiki AND
     tfs.token = ewte.token AND
-    ewte.timestamp BETWEEN 
-        tfs.timestamp AND 
+    ewte.timestamp BETWEEN
+        tfs.timestamp AND
         IFNULL(next_flow_start, DATE_FORMAT(DATE_ADD(ewte.timestamp, INTERVAL 10 MINUTE), "%Y%m%d%H%i%S"))
 GROUP BY 1,2,3;

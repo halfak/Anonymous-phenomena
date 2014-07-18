@@ -1,3 +1,18 @@
+CREATE TABLE IF NOT EXISTS staging.user_token (
+    wiki              VARCHAR(32),
+    user_id           INT,
+    registration      VARBINARY(14),
+    token             VARCHAR(32),
+    account_creations INT,
+    revisions         INT,
+    total_events      INT,
+    PRIMARY KEY(wiki, user_id, token),
+    KEY(wiki, token)
+);
+
+DELETE FROM staging.user_token
+WHERE registration BETWEEN @start_date AND @end_date;
+
 SELECT
     token_event.wiki,
     token_event.user_id,
@@ -14,7 +29,6 @@ FROM (
             "account creation" AS event
         FROM log.SignupExpAccountCreationComplete_8539421
         WHERE wiki IN ("enwiki", "dewiki", "frwiki", "itwiki")
-        AND timestamp BETWEEN @start_date AND @end_date
     UNION ALL
         SELECT
             "enwiki" AS wiki,
@@ -116,3 +130,5 @@ LEFT JOIN ServerSideAccountCreation_5487345 ssac ON
     ssac.wiki = token_event.wiki AND
     ssac.event_userId = token_event.user_id
 GROUP BY 1,2,3;
+
+SELECT COUNT(*), NOW() FROM staging.user_token;

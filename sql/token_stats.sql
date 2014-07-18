@@ -25,6 +25,7 @@ FROM (
     FROM log.TrackedPageContentSaveComplete_8535426
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -35,6 +36,7 @@ FROM (
     log.TrackedPageContentSaveComplete_7872558
     WHERE wiki IN  ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -45,6 +47,7 @@ FROM (
       log.SignupExpAccountCreationComplete_8539421
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -55,6 +58,7 @@ FROM (
       SignupExpAccountCreationImpression_8539445
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -65,6 +69,7 @@ FROM (
       log.SignupExpCTAButtonClick_8102619
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -75,6 +80,7 @@ FROM (
       log.SignupExpCTAImpression_8101716
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
   UNION ALL
     SELECT
       wiki,
@@ -85,5 +91,6 @@ FROM (
       log.SignupExpPageLinkClick_8101692
     WHERE wiki IN ("enwiki", "dewiki", "itwiki", "frwiki")
     AND event_token IS NOT NULL
+    AND timestamp BETWEEN @start_date AND @end_date
 ) AS token_events
 GROUP BY 1,2

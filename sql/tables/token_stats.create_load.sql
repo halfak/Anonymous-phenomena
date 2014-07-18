@@ -1,6 +1,28 @@
-DROP TABLE IF EXISTS staging.token_stats;
-CREATE TABLE staging.token_stats
-ENGINE = InnoDB
+CREATE TABLE IF NOT EXISTS staging.token_stats (
+    wiki VARCHAR(50),
+    token VARCHAR(50),
+    first_event VARBINARY(14),
+    revisions INT,
+    account_creations INT,
+    creation_impressions INT,
+    button_clicks INT,
+    dismiss_button_clicks INT,
+    singup_button_clicks INT,
+    edit_button_clicks INT,
+    cta_impressions INT,
+    pre_cta_impressions INT,
+    post_cta_impressions INT,
+    link_clicks INT,
+    edit_link_clicks INT,
+    registration_link_clicks INT,
+    total_events INT,
+    PRIMARY KEY(wiki, token)
+);
+
+DELETE FROM staging.token_stats
+WHERE first_event BETWEEN @start_date AND @end_date;
+
+INSERT INTO staging.token_stats
 SELECT
     wiki,
     token,
@@ -84,7 +106,5 @@ FROM (
     AND event_token IS NOT NULL
 ) AS token_events
 GROUP BY 1,2;
-ALTER TABLE staging.token_stats MODIFY wiki VARCHAR(32);
-ALTER TABLE staging.token_stats MODIFY token VARCHAR(32);
-CREATE UNIQUE INDEX wiki_token ON staging.token_stats (wiki, token);
+
 SELECT COUNT(*), NOW() FROM staging.token_stats;

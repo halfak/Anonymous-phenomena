@@ -8,8 +8,8 @@ LEFT JOIN (
         token,
         COUNT(rev_id) AS experimental_revisions
     FROM staging.token_revision
-    WHERE timestamp BETWEEN "20140519180800" AND "20140526180800"
+    WHERE timestamp BETWEEN @start_date AND @end_date
     GROUP BY wiki, token
 ) AS token_revision_count USING (wiki, token)
-WHERE (first_user_id IS NULL OR first_user_registration > "20140519180800")
+WHERE (first_user_id IS NULL OR first_user_registration > @start_date)
 AND edit_link_clicks > 0

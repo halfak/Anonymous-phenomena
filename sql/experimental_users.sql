@@ -8,4 +8,4 @@ FROM staging.token_info
 WHERE
 	link_clicks > 0 AND
 	first_user_id IS NOT NULL AND
-	first_user_registration BETWEEN "20140519180800" AND "20140526180800";
+	first_user_registration BETWEEN @start_date AND @end_date;

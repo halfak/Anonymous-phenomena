@@ -13,6 +13,6 @@ CREATE TABLE staging.experimental_user_stats (
     week_reverted_main_revisions INT,
     week_sessions                INT,
     week_session_seconds         INT,
-    week_productive_edits        INT,
+    week_productive_edits        INT
     PRIMARY KEY (wiki, user_id)
 );

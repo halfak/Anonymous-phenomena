@@ -1,6 +1,26 @@
-DROP TABLE IF EXISTS staging.token_info;
-CREATE TABLE staging.token_info
+CREATE TABLE IF NOT EXISTS staging.token_info (
+    wiki    VARCHAR(50),
+    token   VARCHAR(50),
+    bucket  VARCHAR(50),
+    first_event VARBINARY(14),
+    tokened_revisions INT,
+    account_creations INT,
+    button_clicks INT,
+    cta_impressions INT,
+    link_clicks INT,
+    edit_link_clicks INT,
+    registration_link_clicks INT,
+    total_events INT,
+    user_accounts INT,
+    first_user_id INT,
+    first_user_registration INT,
+    PRIMARY KEY (wiki, token)
+);
 
+DELETE FROM staging.token_info
+WHERE first_event BETWEEN @start_date AND @end_date;
+
+INSERT INTO staging.token_info
 SELECT
     token_stats.wiki,
     token_stats.token,
@@ -20,7 +40,7 @@ SELECT
     MIN(registration) AS first_user_registration
 FROM staging.token_stats
 LEFT JOIN staging.user_token USING (wiki, token)
+WHERE token_stats.first_event BETWEEN @start_date AND @end_date
 GROUP BY 1,2;
 
-CREATE UNIQUE INDEX wiki_token ON staging.token_info (wiki, token);
 SELECT COUNT(*), NOW() FROM staging.token_info;

@@ -8,11 +8,13 @@ CREATE TEMPORARY TABLE staging.tokened_editor
         log.TrackedPageContentSaveComplete_8535426
         WHERE wiki = "enwiki"
         AND event_token IS NOT NULL
+        AND timestamp BETWEEN @start_date AND @end_date
         UNION
         SELECT * FROM
         log.TrackedPageContentSaveComplete_7872558
         WHERE wiki = "enwiki"
         AND event_token IS NOT NULL
+        AND timestamp BETWEEN @start_date AND @end_date
     ) AS tracked_revisions
     LEFT JOIN enwiki.revision ON rev_id = event_revId
     LEFT JOIN enwiki.archive ON ar_rev_id = event_revId
@@ -27,11 +29,13 @@ UNION ALL
         log.TrackedPageContentSaveComplete_8535426
         WHERE wiki = "dewiki"
         AND event_token IS NOT NULL
+        AND timestamp BETWEEN @start_date AND @end_date
         UNION
         SELECT * FROM
         log.TrackedPageContentSaveComplete_7872558
         WHERE wiki = "dewiki"
         AND event_token IS NOT NULL
+        AND timestamp BETWEEN @start_date AND @end_date
     ) AS tracked_revisions
     LEFT JOIN dewiki.revision ON rev_id = event_revId
     LEFT JOIN dewiki.archive ON ar_rev_id = event_revId
@@ -46,11 +50,13 @@ UNION ALL
         log.TrackedPageContentSaveComplete_8535426
         WHERE wiki = "frwiki"
         AND event_token IS NOT NULL
+        AND timestamp BETWEEN @start_date AND @end_date
         UNION
         SELECT * FROM
         log.TrackedPageContentSaveComplete_7872558
         WHERE wiki = "frwiki"
         AND event_token IS NOT NULL
+        AND timestamp BETWEEN @start_date AND @end_date
     ) AS tracked_revisions
     LEFT JOIN frwiki.revision ON rev_id = event_revId
     LEFT JOIN frwiki.archive ON ar_rev_id = event_revId
